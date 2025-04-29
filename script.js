@@ -32,13 +32,12 @@ window.addEventListener('DOMContentLoaded', () => {
         if (!fixedBoxes) {
             setTimeout(() => {
                 const markerPosition = new THREE.Vector3();
-                const markerRotation = new THREE.Euler();
+                const markerQuaternion = new THREE.Quaternion();
                 const markerScale = new THREE.Vector3();
                 
                 // Get marker's transformation matrix
                 marker.object3D.updateMatrixWorld(true);
-                marker.object3D.matrixWorld.decompose(markerPosition, 
-                    new THREE.Quaternion(), markerScale);
+                marker.object3D.matrixWorld.decompose(markerPosition, markerQuaternion, markerScale);
                 
                 // Create fixed boxes in world space
                 const colors = ['red', 'blue', 'green'];
@@ -56,7 +55,7 @@ window.addEventListener('DOMContentLoaded', () => {
                     
                     // Create a world-fixed box
                     const box = document.createElement('a-box');
-                    box.setAttribute('material', `color: ${colors[i]}`);
+                    box.setAttribute('material', `color: ${colors[i]}; shader: flat;`);
                     box.setAttribute('position', worldPosition.x + ' ' + worldPosition.y + ' ' + worldPosition.z);
                     box.setAttribute('scale', '1 1 1');
                     box.setAttribute('class', 'fixed-box');
@@ -73,7 +72,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 
                 fixedBoxes = true;
                 console.log('Boxes fixed in world space');
-            }, 300); // Small delay to ensure marker is stable
+            }, 500); // Increased delay to ensure marker is stable
         }
     });
     
