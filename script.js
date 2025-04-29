@@ -3,67 +3,72 @@
 window.addEventListener('DOMContentLoaded', () => {
     const scene = document.querySelector('a-scene');
     const marker = document.querySelector('#hiro-marker');
-    const persistentObjects = document.querySelector('#persistent-objects');
+    const worldObjects = document.querySelector('#world-objects');
+    let fixedBoxes = false;
     
-    let markerFound = false;
-    let worldPosition = new THREE.Vector3();
-    let worldRotation = new THREE.Quaternion();
+    // Remove loader when the scene is ready
+    scene.addEventListener('loaded', () => {
+        const loader = document.querySelector('.arjs-loader');
+        if (loader) {
+            loader.style.display = 'none';
+        }
+    });
     
-    // Create boxes but don't add them to the scene yet
-    const redBox = document.createElement('a-box');
-    redBox.setAttribute('material', 'color: red');
-    redBox.setAttribute('position', '0 0.5 0');
-    redBox.setAttribute('scale', '1 1 1');
-    
-    const blueBox = document.createElement('a-box');
-    blueBox.setAttribute('material', 'color: blue');
-    blueBox.setAttribute('position', '1 0.5 0');
-    blueBox.setAttribute('scale', '1 1 1');
-    
-    const greenBox = document.createElement('a-box');
-    greenBox.setAttribute('material', 'color: green');
-    greenBox.setAttribute('position', '-1 0.5 0');
-    greenBox.setAttribute('scale', '1 1 1');
-    
-    // Initially add boxes to the marker
-    marker.appendChild(redBox.cloneNode(true));
-    marker.appendChild(blueBox.cloneNode(true));
-    marker.appendChild(greenBox.cloneNode(true));
-    
+    // Handle marker detection
     marker.addEventListener('markerFound', () => {
         console.log('Marker found!');
         
-        // Only do this the first time the marker is found
-        if (!markerFound) {
-            markerFound = true;
-            
-            // Get the world position and rotation of the marker
-            const markerObject3D = marker.object3D;
-            markerObject3D.getWorldPosition(worldPosition);
-            markerObject3D.getWorldQuaternion(worldRotation);
-            
-            // Create a container for our persistent objects
-            const container = document.createElement('a-entity');
-            container.setAttribute('position', worldPosition);
-            container.setAttribute('rotation', markerObject3D.rotation);
-            
-            // Add persistent boxes to the container
-            container.appendChild(redBox);
-            container.appendChild(blueBox);
-            container.appendChild(greenBox);
-            
-            // Add the container to our persistent objects entity
-            persistentObjects.appendChild(container);
-            
-            // Hide the marker boxes by removing them
-            while (marker.firstChild) {
-                marker.removeChild(marker.firstChild);
-            }
+        // Only fix boxes in world space once
+        if (!fixedBoxes) {
+            setTimeout(() => {
+                const markerPosition = new THREE.Vector3();
+                const markerRotation = new THREE.Euler();
+                const markerScale = new THREE.Vector3();
+                
+                // Get marker's transformation matrix
+                marker.object3D.updateMatrixWorld(true);
+                marker.object3D.matrixWorld.decompose(markerPosition, 
+                    new THREE.Quaternion(), markerScale);
+                
+                // Create fixed boxes in world space
+                const colors = ['red', 'blue', 'green'];
+                const positions = [
+                    new THREE.Vector3(0, 0.5, 0),
+                    new THREE.Vector3(1, 0.5, 0),
+                    new THREE.Vector3(-1, 0.5, 0)
+                ];
+                
+                // Create each box in world space coordinates
+                for (let i = 0; i < 3; i++) {
+                    const worldPosition = new THREE.Vector3();
+                    // Apply marker's transformation to box's local position
+                    worldPosition.copy(positions[i]).applyMatrix4(marker.object3D.matrixWorld);
+                    
+                    // Create a world-fixed box
+                    const box = document.createElement('a-box');
+                    box.setAttribute('material', `color: ${colors[i]}`);
+                    box.setAttribute('position', worldPosition.x + ' ' + worldPosition.y + ' ' + worldPosition.z);
+                    box.setAttribute('scale', '1 1 1');
+                    box.setAttribute('class', 'fixed-box');
+                    
+                    // Add to world objects
+                    worldObjects.appendChild(box);
+                }
+                
+                // Hide marker boxes
+                const markerBoxes = document.querySelectorAll('.marker-box');
+                markerBoxes.forEach(box => {
+                    box.setAttribute('visible', 'false');
+                });
+                
+                fixedBoxes = true;
+                console.log('Boxes fixed in world space');
+            }, 300); // Small delay to ensure marker is stable
         }
     });
     
     marker.addEventListener('markerLost', () => {
         console.log('Marker lost!');
-        // Boxes will remain in the scene thanks to being added to persistentObjects
+        // Boxes will remain fixed in world space
     });
 }); 
