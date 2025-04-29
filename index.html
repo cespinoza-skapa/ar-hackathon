@@ -13,8 +13,11 @@
     <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
         <!-- Create a marker -->
         <a-marker preset="hiro">
-            <!-- Add a 3D object that will appear on the marker -->
+            <!-- Add first 3D box that will appear on the marker -->
             <a-box position="0 0.5 0" material="color: red;"></a-box>
+            
+            <!-- Add second 3D box 10 feet (approx. 3.048 meters) away straight ahead -->
+            <a-box position="0 0.5 -3.048" material="color: blue;"></a-box>
         </a-marker>
         
         <!-- Add a camera -->
