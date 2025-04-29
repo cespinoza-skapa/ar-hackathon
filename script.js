@@ -7,16 +7,26 @@ window.addEventListener('DOMContentLoaded', () => {
     let fixedBoxes = false;
     
     // Remove loader when the scene is ready
-    scene.addEventListener('loaded', () => {
+    scene.addEventListener('renderstart', () => {
+        hideLoader();
+    });
+    
+    // Fallback to hide loader after a few seconds in case renderstart doesn't fire
+    setTimeout(hideLoader, 3000);
+    
+    function hideLoader() {
         const loader = document.querySelector('.arjs-loader');
         if (loader) {
             loader.style.display = 'none';
         }
-    });
+    }
     
     // Handle marker detection
     marker.addEventListener('markerFound', () => {
         console.log('Marker found!');
+        
+        // Ensure loader is hidden when marker is found
+        hideLoader();
         
         // Only fix boxes in world space once
         if (!fixedBoxes) {
