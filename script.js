@@ -20,9 +20,15 @@ window.addEventListener('DOMContentLoaded', () => {
     blueBox.setAttribute('position', '1 0.5 0');
     blueBox.setAttribute('scale', '1 1 1');
     
+    const greenBox = document.createElement('a-box');
+    greenBox.setAttribute('material', 'color: green');
+    greenBox.setAttribute('position', '-1 0.5 0');
+    greenBox.setAttribute('scale', '1 1 1');
+    
     // Initially add boxes to the marker
     marker.appendChild(redBox.cloneNode(true));
     marker.appendChild(blueBox.cloneNode(true));
+    marker.appendChild(greenBox.cloneNode(true));
     
     marker.addEventListener('markerFound', () => {
         console.log('Marker found!');
@@ -44,6 +50,7 @@ window.addEventListener('DOMContentLoaded', () => {
             // Add persistent boxes to the container
             container.appendChild(redBox);
             container.appendChild(blueBox);
+            container.appendChild(greenBox);
             
             // Add the container to our persistent objects entity
             persistentObjects.appendChild(container);
