@@ -21,3 +21,5 @@ A simple augmented reality project using AR.js and A-Frame.
 - Modern browser that supports WebGL and WebRTC
 - Camera access
 - For mobile: iOS 11+ or Android with ARCore support 
+
+-
