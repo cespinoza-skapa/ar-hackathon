@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple AR.js Marker Example</title>
+    <!-- Import A-Frame and AR.js -->
+    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+</head>
+<body style="margin: 0; overflow: hidden;">
+    <!-- AR.js scene -->
+    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
+        <!-- Hiro marker -->
+        <a-marker preset="hiro">
+            <!-- 3D box that appears when the marker is detected -->
+            <a-box position="0 0.5 0" 
+                   material="color: red;" 
+                   scale="1 1 1"
+                   animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear;">
+            </a-box>
+        </a-marker>
+        
+        <!-- Camera -->
+        <a-entity camera></a-entity>
+    </a-scene>
+</body>
+</html> 
