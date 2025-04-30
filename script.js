@@ -21,39 +21,51 @@ window.addEventListener('DOMContentLoaded', () => {
         // Only fix boxes in world space once
         if (!fixedBoxes) {
             setTimeout(() => {
-                const markerPosition = new THREE.Vector3();
-                const markerRotation = new THREE.Euler();
-                const markerScale = new THREE.Vector3();
+                // Create a fixed anchor in world space at the marker's position
+                const anchor = document.createElement('a-entity');
+                anchor.setAttribute('id', 'fixed-anchor');
                 
-                // Get marker's transformation matrix
-                marker.object3D.updateMatrixWorld(true);
-                marker.object3D.matrixWorld.decompose(markerPosition, 
-                    new THREE.Quaternion(), markerScale);
+                // Get the marker's world position and rotation
+                const markerEl = marker.object3D;
+                markerEl.updateMatrixWorld(true);
                 
-                // Create fixed boxes in world space
+                // Convert to world position
+                const worldPosition = new THREE.Vector3();
+                const worldQuaternion = new THREE.Quaternion();
+                const worldScale = new THREE.Vector3();
+                markerEl.matrixWorld.decompose(worldPosition, worldQuaternion, worldScale);
+                
+                // Convert quaternion to Euler angles for A-Frame
+                const worldRotation = new THREE.Euler().setFromQuaternion(worldQuaternion);
+                const rotationDegrees = {
+                    x: THREE.MathUtils.radToDeg(worldRotation.x),
+                    y: THREE.MathUtils.radToDeg(worldRotation.y),
+                    z: THREE.MathUtils.radToDeg(worldRotation.z)
+                };
+                
+                // Set anchor position and rotation to match the marker
+                anchor.setAttribute('position', `${worldPosition.x} ${worldPosition.y} ${worldPosition.z}`);
+                anchor.setAttribute('rotation', `${rotationDegrees.x} ${rotationDegrees.y} ${rotationDegrees.z}`);
+                
+                // Add fixed boxes directly to the anchor with local coordinates
                 const colors = ['red', 'blue', 'green'];
                 const positions = [
-                    new THREE.Vector3(0, 0.5, 0),
-                    new THREE.Vector3(1, 0.5, 0),
-                    new THREE.Vector3(-1, 0.5, 0)
+                    '0 0.5 0',    // red box at center
+                    '1 0.5 0',    // blue box to the right
+                    '-1 0.5 0'    // green box to the left
                 ];
                 
-                // Create each box in world space coordinates
                 for (let i = 0; i < 3; i++) {
-                    const worldPosition = new THREE.Vector3();
-                    // Apply marker's transformation to box's local position
-                    worldPosition.copy(positions[i]).applyMatrix4(marker.object3D.matrixWorld);
-                    
-                    // Create a world-fixed box
                     const box = document.createElement('a-box');
                     box.setAttribute('material', `color: ${colors[i]}`);
-                    box.setAttribute('position', worldPosition.x + ' ' + worldPosition.y + ' ' + worldPosition.z);
+                    box.setAttribute('position', positions[i]);
                     box.setAttribute('scale', '1 1 1');
                     box.setAttribute('class', 'fixed-box');
-                    
-                    // Add to world objects
-                    worldObjects.appendChild(box);
+                    anchor.appendChild(box);
                 }
+                
+                // Add the anchor to the scene
+                scene.appendChild(anchor);
                 
                 // Hide marker boxes
                 const markerBoxes = document.querySelectorAll('.marker-box');
@@ -63,7 +75,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 
                 fixedBoxes = true;
                 console.log('Boxes fixed in world space');
-            }, 300); // Small delay to ensure marker is stable
+            }, 500); // Increased delay to ensure marker is stable
         }
     });
     
