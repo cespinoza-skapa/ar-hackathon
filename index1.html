@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple AR.js Marker Example</title>
+    <!-- Use specific versions known to work well together -->
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <style>
+        .arjs-loader {
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .arjs-loader div {
+            text-align: center;
+            font-size: 1.25em;
+            color: white;
+        }
+    </style>
+</head>
+
+<body style="margin: 0; overflow: hidden;">
+    <!-- Loading screen -->
+    <div class="arjs-loader">
+        <div>Loading, please wait...<br>Please allow camera access when prompted.</div>
+    </div>
+    
+    <!-- AR.js scene -->
+    <a-scene 
+        embedded 
+        arjs="sourceType: webcam; debugUIEnabled: false;"
+        vr-mode-ui="enabled: false"
+        renderer="antialias: true; alpha: true">
+        
+        <!-- Hiro marker -->
+        <a-marker preset="hiro" type="pattern">
+            <!-- 3D box that appears when the marker is detected -->
+            <a-box position="0 0.5 0" 
+                  material="color: red;" 
+                  scale="1 1 1"
+                  animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear;">
+            </a-box>
+        </a-marker>
+        
+        <!-- Camera with specific attributes -->
+        <a-entity camera></a-entity>
+    </a-scene>
+
+    <script>
+        // Hide the loading screen when the scene is ready
+        document.querySelector('a-scene').addEventListener('loaded', function() {
+            document.querySelector('.arjs-loader').style.display = 'none';
+        });
+    </script>
+</body>
+</html> 
